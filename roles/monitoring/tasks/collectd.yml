@@ -1,0 +1,18 @@
+%YAML 1.2
+---
+- name: Install CollectD Dependencies
+  apt: pkg=collectd state=installed
+  sudo: yes
+  tags: collectd
+
+- name: Get CollectD Librato Plugin 
+  get_url: url=https://raw.github.com/librato/collectd-librato/master/lib/collectd-librato.py dest=/opt/collectd-librato.py
+  sudo: yes
+  tags: collectd
+
+- name: Configure CollectD
+  copy: src=collectd.conf dest=/etc/collectd/collectd.conf
+  sudo: yes
+  notify:
+    - restart collectd
+  tags: collectd

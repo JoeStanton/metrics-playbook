@@ -1,0 +1,65 @@
+%YAML 1.2
+---
+- name: Install CollectD Dependencies
+  apt: pkg=$item state=installed
+  with_items:
+    - build-essential
+    - libsensors4-dev
+    - libsnmp-dev
+    - libcurl4-gnutls-dev
+    - libgcrypt11
+    - libglib2.0-0
+    - liboping0
+    - libpq5
+    - libpython2.7
+    - libvarnishapi1
+    - python-dev
+    - chkconfig
+  sudo: yes
+  tags: collectd
+
+- name: Get CollectD {{version}}
+  get_url: url=http://collectd.org/files/collectd-{{version}}.tar.gz
+           dest=/tmp/
+  tags: collectd
+
+- name: Unpack CollectD
+  command: /bin/tar xzf collectd-{{version}}.tar.gz
+           chdir=/tmp
+           creates=/tmp/collectd-{{version}}
+  tags: collectd
+
+- name: Configure Build CollectD
+  command: ./configure
+           chdir=/tmp/collectd-{{version}}
+  tags: collectd
+
+- name: Install CollectD
+  command: /usr/bin/make all install
+           chdir=/tmp/collectd-{{version}}
+  sudo: yes
+  tags: collectd
+
+- name: Configure CollectD Upstart
+  copy: src=collectd.upstart dest=/etc/init/collectd.conf
+  sudo: yes
+  notify:
+    - restart collectd
+  tags: collectd
+
+- name: Get CollectD Librato Plugin 
+get_url: url=https://raw.github.com/librato/collectd-librato/master/lib/collectd-librato.py dest=/opt/collectd-librato.py
+  sudo: yes
+  tags: collectd
+
+- name: Create CollectD Directory
+  file: path=/etc/collectd/ mode=0655 state=directory
+  sudo: yes
+  tags: collectd
+
+- name: Configure CollectD
+  copy: src=collectd.conf dest=/etc/collectd/collectd.conf
+  sudo: yes
+  notify:
+    - restart collectd
+  tags: collectd

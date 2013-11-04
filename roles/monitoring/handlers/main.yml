@@ -1,0 +1,9 @@
+%YAML 1.2
+---
+- name: restart statsd
+  service: name=statsd state=restarted
+  sudo: true
+
+- name: restart collectd
+  service: name=collectd state=restarted
+  sudo: true

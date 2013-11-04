@@ -1,0 +1,4 @@
+%YAML 1.2
+---
+- include: statsd.yml
+- include: collectd.yml version=5.4.0

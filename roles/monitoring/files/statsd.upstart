@@ -1,0 +1,13 @@
+description "Network daemon for aggregating statistics"
+author      "Etsy"
+
+start on (local-filesystems and net-device-up IFACE!=lo)
+
+respawn
+respawn limit 10 5
+
+script 
+  NODE_BIN=$(which nodejs||which node)
+  chdir /usr/share/statsd
+  exec $NODE_BIN stats.js /etc/statsd/config.js
+end script

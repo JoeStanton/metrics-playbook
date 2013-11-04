@@ -1,0 +1,34 @@
+%YAML 1.2
+---
+- name: dependencies for node
+  apt: pkg={{item}}
+       state=present
+  with_items:
+  - make
+  - gcc
+  - g++
+  - openssl
+  sudo: yes
+  tags: node
+
+- name: get node {{version}}
+  get_url: url=http://nodejs.org/dist/v{{version}}/node-v{{version}}.tar.gz
+           dest=/tmp/
+  tags: node
+
+- name: unpack node
+  command: /bin/tar xzf node-v{{version}}.tar.gz
+           chdir=/tmp
+           creates=/tmp/node-v{{version}}
+  tags: node
+
+- name: build node
+  command: ./configure && /usr/bin/make
+           chdir=/tmp/node-v{{version}}
+  tags: node
+
+- name: install node
+  command: /usr/bin/make install
+           chdir=/tmp/node-v{{version}}
+  sudo: yes
+  tags: node

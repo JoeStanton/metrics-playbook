@@ -1,0 +1,34 @@
+%YAML 1.2
+---
+- include: node.yml version=0.10.21
+
+- name: Install StatsD
+  git: repo=https://github.com/etsy/statsd.git dest=/usr/share/statsd
+  sudo: yes
+  tags: statsd
+
+- name: Install statsd-librato-backend
+  command: npm install statsd-librato-backend
+           chdir=/usr/share/statsd/
+           creates=node_modules/statsd-librato-backend
+  sudo: yes
+  tags: statsd
+
+- name: Create StatsD Directory
+  file: path=/etc/statsd/ mode=0655 state=directory
+  sudo: yes
+  tags: statsd
+
+- name: Configure StatsD
+  copy: src=statsd-config.js dest=/etc/statsd/config.js
+  sudo: yes
+  notify:
+    - restart statsd
+  tags: statsd
+
+- name: Configure StatsD Upstart
+  copy: src=statsd.upstart dest=/etc/init/statsd.conf
+  sudo: yes
+  notify:
+    - restart statsd
+  tags: statsd
